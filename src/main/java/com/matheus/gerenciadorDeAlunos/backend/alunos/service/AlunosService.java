@@ -1,11 +1,11 @@
 package com.matheus.gerenciadorDeAlunos.backend.alunos.service;
 
+import com.matheus.gerenciadorDeAlunos.backend.alunos.controller.request.AlunosRequest;
 import com.matheus.gerenciadorDeAlunos.backend.alunos.model.Alunos;
 import com.matheus.gerenciadorDeAlunos.backend.alunos.repository.AlunosRepositorio;
-import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import com.matheus.gerenciadorDeAlunos.backend.shared.enums.RoleEnums;
+import com.matheus.gerenciadorDeAlunos.backend.shared.exceptions.IdNotFoundException;
+import com.matheus.gerenciadorDeAlunos.backend.shared.exceptions.alunoExceptions.AlunoException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,19 +14,33 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
-@RequiredArgsConstructor
 public class AlunosService{
     private final AlunosRepositorio repositorio;
     private final PasswordEncoder encoder;
 
+    
+
+    public AlunosService(AlunosRepositorio repositorio, PasswordEncoder encoder) {
+        this.repositorio = repositorio;
+        this.encoder = encoder;
+    }
+
+
     @Transactional
-    public Alunos registrarAluno(Alunos alunos){
-        if (repositorio.findByEmail(alunos.getEmail()).isPresent()){
-            throw new RuntimeException("Email ja cadastrado");
+    public Alunos registrarAluno(AlunosRequest request){
+        try {
+
+            Alunos alunos = new Alunos();
+            alunos.setNome(request.nome());
+            alunos.setEmail(request.email());
+            alunos.setSenha(request.senha());
+            alunos.setPeriodo(request.periodo());
+            alunos.setRole(RoleEnums.ALUNO);
+
+            return repositorio.save(alunos);
+        }catch (AlunoException exception){
+            throw new AlunoException("Não foi possível registrar o aluno");
         }
-        String senha = alunos.getSenha();
-        alunos.setSenha(encoder.encode(senha));
-        return repositorio.save(alunos);
     }
 
 
@@ -34,8 +48,8 @@ public class AlunosService{
     public void deletarAlunoViaId(UUID id){
         try{
         repositorio.deleteById(id);
-        } catch (RuntimeException e) {
-            throw new RuntimeException(e.getMessage());
+        } catch (IdNotFoundException exception) {
+            throw new IdNotFoundException(id);
         }
     }
 
@@ -47,36 +61,30 @@ public class AlunosService{
 
     public Alunos mostrarAlunoViaId(UUID id){
         return repositorio.findById(id)
-                .orElseThrow(()-> new RuntimeException("Id inválido"));
+                .orElseThrow(()-> new IdNotFoundException(id));
     }
 
+    public Alunos mostrarAlunoViaNome(String nome){
+        return repositorio.findByName(nome)
+                .orElseThrow(() -> new AlunoException("Nome não encontrado"));
+    }
 
-    public Alunos atualizarAluno(Alunos alunos, UUID id){
-            Alunos alunoExistente = repositorio.findById(id)
-                    .orElseThrow(() -> new RuntimeException("Id não encontrado"));
-            if (alunos.getNome() != null){
-                alunoExistente.setNome(alunos.getNome());
-            }else{
-                alunoExistente.setNome(alunoExistente.getNome());
+    public Alunos atualizarAluno(AlunosRequest request, UUID id){
+            Alunos aluno = repositorio.findById(id)
+                    .orElseThrow(() -> new IdNotFoundException(id));
+            try {
+                if (request.nome() != null) {
+                    aluno.setNome(request.nome());
+                }
+                if (request.periodo() != 0) {
+                    aluno.setPeriodo(request.periodo());
+                }
+                if (request.senha() != null) {
+                    aluno.setSenha(encoder.encode(request.senha()));
+                }
+                return repositorio.save(aluno);
+            } catch (AlunoException exception){
+                throw new AlunoException("Erro ao atualizar os dados do Aluno");
             }
-            if (alunos.getPeriodo() != 0){
-                alunoExistente.setPeriodo(alunos.getPeriodo());
-            }else{
-                alunoExistente.setPeriodo(alunoExistente.getPeriodo());
-            }
-            if (alunos.getProfessores() != null){
-                alunoExistente.setProfessores(alunos.getProfessores());
-            }else{
-                alunoExistente.setProfessores(alunoExistente.getProfessores());
-            }
-            if (alunos.getSenha() != null){
-                alunoExistente.setSenha(encoder.encode(alunos.getSenha()));
-            }
-            if (alunos.getNotasT() != null){
-                alunoExistente.setNotasT(alunos.getNotasT());
-            }else{
-                alunoExistente.setAlunoId(alunoExistente.getAlunoId());
-            }
-            return repositorio.save(alunoExistente);
     }
 }

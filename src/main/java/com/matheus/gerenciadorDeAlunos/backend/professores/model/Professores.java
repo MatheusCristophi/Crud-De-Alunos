@@ -3,9 +3,6 @@ package com.matheus.gerenciadorDeAlunos.backend.professores.model;
 import com.matheus.gerenciadorDeAlunos.backend.alunos.model.Alunos;
 import com.matheus.gerenciadorDeAlunos.backend.shared.enums.RoleEnums;
 import jakarta.persistence.*;
-import lombok.*;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -14,16 +11,9 @@ import java.util.*;
 
 @Entity
 @Table(name = "tb_professores")
-@Getter
-@Setter
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
 public class Professores implements UserDetails {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    @JdbcTypeCode(SqlTypes.UUID)
     @Column(nullable = false)
     private UUID professorId;
 
@@ -40,7 +30,74 @@ public class Professores implements UserDetails {
     private int idade;
 
     @Column(nullable = false)
-    public final RoleEnums role = RoleEnums.PROFESSOR;
+    public RoleEnums role;
+
+    public Professores() {
+    }
+
+    public Professores(Set<Alunos> alunos, RoleEnums role, int idade, String name, String senha, String email, UUID professorId) {
+        this.alunos = alunos;
+        this.role = role;
+        this.idade = idade;
+        this.name = name;
+        this.senha = senha;
+        this.email = email;
+        this.professorId = professorId;
+    }
+
+    public UUID getProfessorId() {
+        return professorId;
+    }
+
+    public void setProfessorId(UUID professorId) {
+        this.professorId = professorId;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getSenha() {
+        return senha;
+    }
+
+    public void setSenha(String senha) {
+        this.senha = senha;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public int getIdade() {
+        return idade;
+    }
+
+    public void setIdade(int idade) {
+        this.idade = idade;
+    }
+
+    public RoleEnums getRole() {
+        return role;
+    }
+
+    public void setRole(RoleEnums role) { this.role = role; }
+
+    public Set<Alunos> getAlunos() {
+        return alunos;
+    }
+
+    public void setAlunos(Set<Alunos> alunos) {
+        this.alunos = alunos;
+    }
 
     @ManyToMany
     @JoinTable(

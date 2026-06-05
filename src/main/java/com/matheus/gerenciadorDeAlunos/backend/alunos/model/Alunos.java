@@ -3,9 +3,6 @@ package com.matheus.gerenciadorDeAlunos.backend.alunos.model;
 import com.matheus.gerenciadorDeAlunos.backend.shared.enums.RoleEnums;
 import com.matheus.gerenciadorDeAlunos.backend.professores.model.Professores;
 import jakarta.persistence.*;
-import lombok.*;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -14,17 +11,10 @@ import java.util.*;
 
 @Entity
 @Table(name = "tb_alunos")
-@Getter
-@Setter
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
 
 public class Alunos implements UserDetails {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    @JdbcTypeCode(SqlTypes.UUID)
     @Column(nullable = false)
     private UUID alunoId;
 
@@ -38,7 +28,7 @@ public class Alunos implements UserDetails {
     private String nome;
 
     @Column(nullable = false)
-    public final RoleEnums role = RoleEnums.ALUNO;
+    public RoleEnums role;
 
     @Column(nullable = false)
     private int periodo;
@@ -50,6 +40,76 @@ public class Alunos implements UserDetails {
 
     @ManyToMany(mappedBy = "alunos")
     private List<Professores> professores;
+
+    public Alunos() {
+    }
+
+    public Alunos(UUID alunoId, String email, String senha, String nome, RoleEnums role, int periodo) {
+        this.alunoId = alunoId;
+        this.email = email;
+        this.senha = senha;
+        this.nome = nome;
+        this.role = role;
+        this.periodo = periodo;
+    }
+
+    public UUID getAlunoId() {
+        return alunoId;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getSenha() {
+        return senha;
+    }
+
+    public void setSenha(String senha) {
+        this.senha = senha;
+    }
+
+    public String getNome() {
+        return nome;
+    }
+
+    public void setNome(String nome) {
+        this.nome = nome;
+    }
+
+    public List<Float> getNotasT() {
+        return notasT;
+    }
+
+    public void setNotasT(List<Float> notasT) {
+        this.notasT = notasT;
+    }
+
+    public List<Professores> getProfessores() {
+        return professores;
+    }
+
+    public void setProfessores(List<Professores> professores) {
+        this.professores = professores;
+    }
+
+    public RoleEnums getRole() {
+        return role;
+    }
+
+    public void setRole(RoleEnums role) { this.role = role; }
+
+    public int getPeriodo() {
+        return periodo;
+    }
+
+    public void setPeriodo(int periodo) {
+        this.periodo = periodo;
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

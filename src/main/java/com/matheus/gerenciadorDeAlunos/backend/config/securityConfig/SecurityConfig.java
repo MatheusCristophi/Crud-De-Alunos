@@ -23,19 +23,18 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final ObjectProvider<SecurityFilter> securityFilterProvider;
+    private final ObjectProvider<SecurityFilter> securityFilters;
 
     @Bean
     public SecurityFilterChain securityFilterChain (HttpSecurity http) throws Exception{
         return http
-                .csrf(AbstractHttpConfigurer::disable)
+                .csrf(a -> a.disable()) 
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth.
-                        requestMatchers(HttpMethod.POST, "/auth/admin/registrar").permitAll().
                         requestMatchers(HttpMethod.POST, "/auth/login").permitAll().
                         anyRequest().authenticated())
-                .addFilterBefore(securityFilterProvider.getObject(), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(securityFilters.getObject(), UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
 

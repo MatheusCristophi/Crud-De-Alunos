@@ -1,6 +1,5 @@
 package com.matheus.gerenciadorDeAlunos.backend.alunos.controller;
 
-import com.matheus.gerenciadorDeAlunos.backend.alunos.controller.mapper.AlunosMapper;
 import com.matheus.gerenciadorDeAlunos.backend.alunos.controller.request.AlunosRequest;
 import com.matheus.gerenciadorDeAlunos.backend.alunos.controller.response.AlunosResponse;
 import com.matheus.gerenciadorDeAlunos.backend.alunos.service.AlunosService;
@@ -25,30 +24,34 @@ public class AlunosController {
     @GetMapping("/read")
     @PreAuthorize("hasRole('ADMINISTRADOR', 'PROFESSOR')")
     public ResponseEntity<List<AlunosResponse>> mostrarTodosOsAlunos(){
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(service.mostrarTodosAlunos()
-                        .stream()
-                        .map(AlunosMapper::responseMapper)
-                        .toList());
+        var listAlunos = service.mostrarTodosAlunos();
+        var response = listAlunos
+                .stream()
+                .map(AlunosResponse::toAluno)
+                .toList();
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @GetMapping("/readId/{id}")
     @PreAuthorize("hasRole('ADMINISTRADOR', 'PROFESSOR')")
     public ResponseEntity<AlunosResponse> mostrarAlunoPeloId(@PathVariable UUID id){
-        return ResponseEntity.status(HttpStatus.FOUND)
-                .body(AlunosMapper.responseMapper(service.mostrarAlunoViaId(id)));
+        var aluno = service.mostrarAlunoViaId(id);
+        var response = AlunosResponse.toAluno(aluno);
+        return ResponseEntity.ok(response);
     }
 
     @PutMapping("/updateId/{id}")
     @PreAuthorize("hasRole('ADMINISTRADOR', 'PROFESSOR')")
     public ResponseEntity<AlunosResponse> alunoAtualizado(@RequestBody @Valid AlunosRequest alunos,@PathVariable UUID id){
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(AlunosMapper.responseMapper(service.atualizarAluno(AlunosMapper.RequestMapper(alunos), id)));
+        var alunoUpdate = service.atualizarAluno(alunos, id);
+        var response = AlunosResponse.toAluno(alunoUpdate);
+        return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/delete/{id}")
     @PreAuthorize("hasRole('ADMINISTRADOR', 'PROFESSOR')")
-    public void deletaraluno(@PathVariable UUID id){
+    public ResponseEntity<Void> deletaraluno(@PathVariable UUID id){
         service.deletarAlunoViaId(id);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }

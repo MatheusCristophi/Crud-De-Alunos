@@ -1,17 +1,14 @@
 package com.matheus.gerenciadorDeAlunos.backend.config.securityController;
 
-import com.matheus.gerenciadorDeAlunos.backend.admin.controller.mappper.AdminMapper;
 import com.matheus.gerenciadorDeAlunos.backend.admin.controller.request.AdminRequest;
 import com.matheus.gerenciadorDeAlunos.backend.admin.controller.response.AdminResponse;
 import com.matheus.gerenciadorDeAlunos.backend.admin.service.AdminService;
-import com.matheus.gerenciadorDeAlunos.backend.alunos.controller.mapper.AlunosMapper;
 import com.matheus.gerenciadorDeAlunos.backend.alunos.controller.request.AlunosRequest;
 import com.matheus.gerenciadorDeAlunos.backend.alunos.controller.response.AlunosResponse;
 import com.matheus.gerenciadorDeAlunos.backend.alunos.service.AlunosService;
 import com.matheus.gerenciadorDeAlunos.backend.config.securityController.request.LoginRequest;
 import com.matheus.gerenciadorDeAlunos.backend.config.securityController.response.LoginResponse;
 import com.matheus.gerenciadorDeAlunos.backend.config.tokenService.TokenService;
-import com.matheus.gerenciadorDeAlunos.backend.professores.Controller.mapper.ProfessoresMapper;
 import com.matheus.gerenciadorDeAlunos.backend.professores.Controller.request.ProfessoresRequest;
 import com.matheus.gerenciadorDeAlunos.backend.professores.Controller.response.ProfessoresResponse;
 import com.matheus.gerenciadorDeAlunos.backend.professores.Service.ProfessorService;
@@ -41,24 +38,28 @@ public class SecurityController {
     private final TokenService tokenService;
 
     @PostMapping("/admin/registrar")
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
     public ResponseEntity<AdminResponse> registrarAdmin(@RequestBody @Valid AdminRequest request) {
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(AdminMapper.adminResponse(adminService.registrar(AdminMapper.adminRequest(request))));
+        var createdAdmin = adminService.registrar(request);
+        var response = AdminResponse.toAdmin(createdAdmin);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PostMapping("/aluno/registrar")
     @PreAuthorize("hasRole('ADMINISTRADOR')")
     public ResponseEntity<AlunosResponse> registrarAluno(@RequestBody @Valid AlunosRequest request) {
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(AlunosMapper.responseMapper(alunosService.registrarAluno(AlunosMapper.RequestMapper(request))));
+        var createAluno = alunosService.registrarAluno(request);
+        var response = AlunosResponse.toAluno(createAluno);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PostMapping("/professor/registrar")
     @PreAuthorize("hasRole('ADMINISTRADOR')")
     public ResponseEntity<ProfessoresResponse> registrarProfessor(@RequestBody @Valid ProfessoresRequest request) {
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ProfessoresMapper.responseProfessores(professorService.registrar(ProfessoresMapper.requestProfessores(request))));
-    }
+        var createdProfessor = professorService.registrar(request);
+        var response = ProfessoresResponse.toProfessores(createdProfessor);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+     }
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@RequestBody @Valid LoginRequest request) {

@@ -1,11 +1,15 @@
 package com.matheus.gerenciadorDeAlunos.backend.admin.controller.response;
 
-import lombok.Builder;
 
-import java.util.UUID;
+import com.matheus.gerenciadorDeAlunos.backend.admin.model.Admin;
 
-@Builder
-public record AdminResponse(UUID id, //necessário para testes, remover quando acabar.
-                            String nome,
+public record AdminResponse(String nome,
                             String email) {
+
+    public static AdminResponse toAdmin(Admin admin){
+        return new AdminResponse(
+                admin.getNome(),
+                admin.getEmail()
+        );
+    }
 }

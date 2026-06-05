@@ -1,11 +1,10 @@
 package com.matheus.gerenciadorDeAlunos.backend.professores.Service;
 
+import com.matheus.gerenciadorDeAlunos.backend.professores.Controller.request.ProfessoresRequest;
 import com.matheus.gerenciadorDeAlunos.backend.professores.model.Professores;
 import com.matheus.gerenciadorDeAlunos.backend.professores.Repository.ProfessoresRepositorio;
-import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import com.matheus.gerenciadorDeAlunos.backend.shared.enums.RoleEnums;
+import com.matheus.gerenciadorDeAlunos.backend.shared.exceptions.IdNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,19 +13,27 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
-@RequiredArgsConstructor
 public class ProfessorService{
     private final ProfessoresRepositorio repositorio;
     private final PasswordEncoder encoder;
 
+    public ProfessorService(ProfessoresRepositorio repositorio, PasswordEncoder encoder) {
+        this.repositorio = repositorio;
+        this.encoder = encoder;
+    }
+
     @Transactional
-    public Professores registrar(Professores professores){
-        if (repositorio.findByEmail(professores.getEmail()).isPresent()){
+    public Professores registrar(ProfessoresRequest request){
+        if (repositorio.findByEmail(request.email()).isPresent()){
             throw new RuntimeException("Email ja cadastrado");
         }
-        String senha = professores.getSenha();
-        professores.setSenha(encoder.encode(senha));
-        return repositorio.save(professores);
+        Professores professor = new Professores();
+        professor.setName(request.nome());
+        professor.setIdade(request.idade());
+        professor.setEmail(request.email());
+        professor.setSenha(encoder.encode(request.senha()));
+        professor.setRole(RoleEnums.PROFESSOR);
+        return repositorio.save(professor);
     }
 
     public List<Professores> showAllTeachers(){
@@ -35,34 +42,33 @@ public class ProfessorService{
 
     public Professores showTeacherById(UUID id){
         return repositorio.findById(id)
-                .orElseThrow(()-> new RuntimeException("Id não encontrado"));
+                .orElseThrow(()-> new IdNotFoundException(id));
     }
 
     @Transactional
     public void deleteTeacherById(UUID professorId){
-        Professores prof = repositorio.findById(professorId)
-                .orElseThrow(()-> new RuntimeException("Id não encontrado"));
-        repositorio.delete(prof);
+        try{
+        repositorio.deleteById(professorId);
+        } catch (IdNotFoundException e){
+            throw new IdNotFoundException(professorId);
+        }
     }
 
     @Transactional
-    public Professores updateTeatcher(UUID id, Professores prof){
+    public Professores updateTeatcher(UUID id, ProfessoresRequest prof){
         Professores profAtt = repositorio.findById(id)
-                .orElseThrow(()-> new RuntimeException("Id não encontrado"));
-        if (prof.getName() != null) {
-            profAtt.setName(prof.getName());
+                .orElseThrow(()-> new IdNotFoundException(id));
+        if (prof.nome() != null) {
+            profAtt.setName(prof.nome());
         }
-        if(prof.getEmail() != null){
-            profAtt.setEmail(prof.getEmail());
+        if(prof.email() != null){
+            profAtt.setEmail(prof.email());
         }
-        if(prof.getSenha() != null){
-            profAtt.setSenha(encoder.encode(prof.getSenha()));
+        if(prof.senha() != null){
+            profAtt.setSenha(encoder.encode(prof.senha()));
         }
-        if (prof.getIdade() != 0) {
-            profAtt.setIdade(prof.getIdade());
-        }
-        if (prof.getAlunos() != null) {
-            profAtt.setAlunos(prof.getAlunos());
+        if (prof.idade() != 0) {
+            profAtt.setIdade(prof.idade());
         }
         return repositorio.save(profAtt);
     }

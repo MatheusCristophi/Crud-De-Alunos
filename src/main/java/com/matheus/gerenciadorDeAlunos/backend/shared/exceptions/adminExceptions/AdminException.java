@@ -1,7 +1,7 @@
 package com.matheus.gerenciadorDeAlunos.backend.shared.exceptions.adminExceptions;
 
-public class AdminDeleteException extends RuntimeException {
-    public AdminDeleteException(String message) {
+public class AdminException extends RuntimeException {
+    public AdminException(String message) {
         super(message);
     }
 }

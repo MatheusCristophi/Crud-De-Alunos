@@ -1,9 +1,7 @@
 package com.matheus.gerenciadorDeAlunos.backend.professores.Controller.request;
 
 import jakarta.validation.constraints.*;
-import lombok.Builder;
 
-@Builder
 public record ProfessoresRequest(@NotBlank
                                  String nome,
 
