@@ -28,7 +28,7 @@ public class AdminController {
 
     @PostMapping("/findemail")
     @PreAuthorize("hasRole('ADMINISTRADOR')")
-    public ResponseEntity<AdminResponse> findByEmail(@RequestParam @PathVariable String email){
+    public ResponseEntity<AdminResponse> findByEmail(@RequestBody String email){
         var emailFind = service.buscarEmail(email);
         var response = AdminResponse.toAdmin(emailFind);
         return ResponseEntity.ok(response);

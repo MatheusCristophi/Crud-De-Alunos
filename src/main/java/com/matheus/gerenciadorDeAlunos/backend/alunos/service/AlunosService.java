@@ -64,11 +64,6 @@ public class AlunosService{
                 .orElseThrow(()-> new IdNotFoundException(id));
     }
 
-    public Alunos mostrarAlunoViaNome(String nome){
-        return repositorio.findByName(nome)
-                .orElseThrow(() -> new AlunoException("Nome não encontrado"));
-    }
-
     public Alunos atualizarAluno(AlunosRequest request, UUID id){
             Alunos aluno = repositorio.findById(id)
                     .orElseThrow(() -> new IdNotFoundException(id));
