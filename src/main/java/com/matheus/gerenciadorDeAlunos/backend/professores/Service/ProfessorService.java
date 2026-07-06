@@ -47,9 +47,9 @@ public class ProfessorService{
 
     @Transactional
     public void deleteTeacherById(UUID professorId){
-        try{
+        if (professorId != null){
         repositorio.deleteById(professorId);
-        } catch (IdNotFoundException e){
+        } else {
             throw new IdNotFoundException(professorId);
         }
     }

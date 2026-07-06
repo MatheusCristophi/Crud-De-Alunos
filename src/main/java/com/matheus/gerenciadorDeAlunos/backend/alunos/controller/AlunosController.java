@@ -22,7 +22,7 @@ public class AlunosController {
     }
 
     @GetMapping("/read")
-    @PreAuthorize("hasRole('ADMINISTRADOR', 'PROFESSOR')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'PROFESSOR')")
     public ResponseEntity<List<AlunosResponse>> mostrarTodosOsAlunos(){
         var listAlunos = service.mostrarTodosAlunos();
         var response = listAlunos
@@ -33,7 +33,7 @@ public class AlunosController {
     }
 
     @GetMapping("/readId/{id}")
-    @PreAuthorize("hasRole('ADMINISTRADOR', 'PROFESSOR')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'PROFESSOR')")
     public ResponseEntity<AlunosResponse> mostrarAlunoPeloId(@PathVariable UUID id){
         var aluno = service.mostrarAlunoViaId(id);
         var response = AlunosResponse.toAluno(aluno);
@@ -41,7 +41,7 @@ public class AlunosController {
     }
 
     @PutMapping("/updateId/{id}")
-    @PreAuthorize("hasRole('ADMINISTRADOR', 'PROFESSOR')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'PROFESSOR')")
     public ResponseEntity<AlunosResponse> alunoAtualizado(@RequestBody @Valid AlunosRequest alunos,@PathVariable UUID id){
         var alunoUpdate = service.atualizarAluno(alunos, id);
         var response = AlunosResponse.toAluno(alunoUpdate);
@@ -49,7 +49,7 @@ public class AlunosController {
     }
 
     @DeleteMapping("/delete/{id}")
-    @PreAuthorize("hasRole('ADMINISTRADOR', 'PROFESSOR')")
+    @PreAuthorize("hasAnyRole('ADMINISTRADOR', 'PROFESSOR')")
     public ResponseEntity<Void> deletaraluno(@PathVariable UUID id){
         service.deletarAlunoViaId(id);
         return new ResponseEntity<>(HttpStatus.OK);

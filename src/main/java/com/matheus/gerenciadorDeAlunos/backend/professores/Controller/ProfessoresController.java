@@ -12,7 +12,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.UUID;
 
-@RestController("/professor")
+@RestController
+@RequestMapping("/professor")
 public class ProfessoresController {
     ProfessorService service;
 

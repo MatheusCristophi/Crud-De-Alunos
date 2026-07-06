@@ -47,9 +47,9 @@ public class AdminService {
 
     @Transactional
     public void deleteById(UUID id) {
-        try {
+        if (id != null) {
             repository.deleteById(id);
-        } catch (IdNotFoundException exception) {
+        } else {
             throw new IdNotFoundException(id);
         }
     }

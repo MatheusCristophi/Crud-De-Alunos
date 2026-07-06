@@ -33,7 +33,7 @@ public class AlunosService{
             Alunos alunos = new Alunos();
             alunos.setNome(request.nome());
             alunos.setEmail(request.email());
-            alunos.setSenha(request.senha());
+            alunos.setSenha(encoder.encode(request.senha()));
             alunos.setPeriodo(request.periodo());
             alunos.setRole(RoleEnums.ALUNO);
 
@@ -46,9 +46,9 @@ public class AlunosService{
 
     @Transactional
     public void deletarAlunoViaId(UUID id){
-        try{
+        if (id != null){
         repositorio.deleteById(id);
-        } catch (IdNotFoundException exception) {
+        } else {
             throw new IdNotFoundException(id);
         }
     }
